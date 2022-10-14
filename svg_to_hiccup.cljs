@@ -1,15 +1,7 @@
-(ns cleanup
+(ns svg-to-hiccup
   (:require ["svgo" :as svgo]
             ["fs" :as fs]
             ["posthtml-parser" :as phr]))
-
-(def svgo-settings {:multipass true
-                    :plugins [{:name "preset-default"
-                               :params {:overrides {:removeViewBox false}}}
-                              "removeDimensions"
-                              "sortAttrs"
-                              {:name "convertColors"
-                               :params {:currentColor true}}]})
 
 (defn posthtml->hiccup
   "Convert posthtml-parser output to hiccup"
@@ -17,9 +9,8 @@
   (map
    (fn [el]
      (if (:tag el)
-       (do
-         (let [{:keys [tag attrs content]} el]
-           (into [(keyword tag) attrs] (posthtml->hiccup content))))
+       (let [{:keys [tag attrs content]} el]
+         (into [(keyword tag) attrs] (posthtml->hiccup content)))
        (str el)))
    posthtml))
 
@@ -29,7 +20,16 @@
   (-> html-str
       phr/parser
       (js->clj :keywordize-keys true)
-      posthtml->hiccup))
+      posthtml->hiccup
+      first))
+
+(def svgo-settings {:multipass true
+                    :plugins [{:name "preset-default"
+                               :params {:overrides {:removeViewBox false}}}
+                              "removeDimensions"
+                              "sortAttrs"
+                              {:name "convertColors"
+                               :params {:currentColor true}}]})
 
 (defn usage []
   (println "usage: <path to svg file>"))

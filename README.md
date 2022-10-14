@@ -4,22 +4,17 @@
 
 Passes them through [svgo][svgo] to optimize and minify them and spits out valid hiccup.
 
-## Setup
 
-As per [nbb's docs][nbb-deps] we do some hoop jumping to use clojure deps with nbb.
+## Usage
 
 ``` sh
-bb npm-install
-bb write-deps
+npx nbb -m svg-to-hiccup <path to a svg file>
 ```
 
 
-### Usage
+## License
 
-``` sh
-npx nbb -m cleanup <path to a svg file>
-```
+See [LICENSE](./LICENSE)
 
 
-[nbb-deps]: https://github.com/babashka/nbb/blob/main/doc/dependencies.mdb
 [svgo]: https://github.com/svg/svgo
