@@ -1,29 +1,49 @@
 (ns cleanup
   (:require ["svgo" :as svgo]
             ["fs" :as fs]
-            ["path" :as path]
-            [converter :refer [html->hiccup]]
+            ["posthtml-parser" :as phr]))
 
+(def svgo-settings {:multipass true
+                    :plugins [{:name "preset-default"
+                               :params {:overrides {:removeViewBox false}}}
+                              "removeDimensions"
+                              "sortAttrs"
+                              {:name "convertColors"
+                               :params {:currentColor true}}]})
 
-            ;; [taipei-404.html :refer [html->hiccup]]
-            [nbb.core :refer [*file*]]))
+(defn posthtml->hiccup
+  "Convert posthtml-parser output to hiccup"
+  [posthtml]
+  (map
+   (fn [el]
+     (if (:tag el)
+       (do
+         (let [{:keys [tag attrs content]} el]
+           (into [(keyword tag) attrs] (posthtml->hiccup content))))
+       (str el)))
+   posthtml))
 
-(def settings {:multipass true
-               :plugins [{:name "preset-default"
-                          :params {:overrides {:removeViewBox false}}}
-                         "removeDimensions"
-                         "sortAttrs"
-                         {:name "convertColors"
-                          :params {:currentColor true}}]})
+(defn html->hiccup
+  "Take a string containing HTML and convert it to hiccup in clojure data structures"
+  [html-str]
+  (-> html-str
+      phr/parser
+      (js->clj :keywordize-keys true)
+      posthtml->hiccup))
 
 (defn usage []
   (println "usage: <path to svg file>"))
+
 (defn -main
   [& [svg-path]]
   (if (nil? svg-path)
     (usage)
     (let [svg-string (str (fs/readFileSync svg-path))
-          settings-js (-> settings (merge {:path svg-path}) clj->js)
-          {:keys [data path info]} (-> svg-string (svgo/optimize settings-js) (js->clj   {:keywordize-keys true}))]
-      (println (-> r :data html->hiccup))
-      )))
+          settings-js (clj->js
+                       (merge svgo-settings {:path svg-path}))
+          {data :data} (-> svg-string
+                           (svgo/optimize settings-js)
+                           (js->clj  {:keywordize-keys true}))]
+      (if data
+        (println (-> data html->hiccup))
+        (println "An error parsing the svg occured. Did you pass a file containing a single <svg>?")))))
