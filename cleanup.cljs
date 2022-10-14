@@ -2,7 +2,7 @@
   (:require ["svgo" :as svgo]
             ["fs" :as fs]
             ["path" :as path]
-;;            [taipei-404.html :refer [html->hiccup]]
+            [taipei-404.html :refer [html->hiccup]]
             [nbb.core :refer [*file*]]))
 
 (def settings {:multipass true
@@ -22,6 +22,5 @@
     (let [svg-string (str (fs/readFileSync svg-path))
           settings-js (-> settings (merge {:path svg-path}) clj->js)
           {:keys [data path info]} (-> svg-string (svgo/optimize settings-js) (js->clj   {:keywordize-keys true}))]
-      (println data) ;; this is html
-      (comment
-        (println (-> r :data html->hiccup))))))
+      ;; (println data)
+      (println (-> r :data html->hiccup)))))
