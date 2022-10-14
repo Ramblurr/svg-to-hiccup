@@ -1,0 +1,2 @@
+{:deps {
+        taipei.404/html-to-hiccup {:mvn/version "0.1.8"}}}

@@ -1,0 +1,10 @@
+{:tasks
+ {:requires ([babashka.fs :as fs])
+
+  npm-install {:doc "NPM Install deps"
+               :task
+               (shell {:dir "./"} "npm" "install")}
+  write-deps {:doc "Write dependencies in deps folder"
+              :task (do (shell "bb --config nbb.edn uberjar nbb-deps.jar")
+                        (fs/create-dirs "nbb-deps")
+                        (fs/unzip "nbb-deps.jar" "nbb-deps"))}}}
