@@ -21,7 +21,8 @@
       phr/parser
       (js->clj :keywordize-keys true)
       posthtml->hiccup
-      first))
+      first
+      str))
 
 (def svgo-settings {:multipass true
                     :plugins [{:name "preset-default"
